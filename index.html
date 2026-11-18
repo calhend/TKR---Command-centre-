@@ -1,0 +1,36 @@
+<!doctype html>
+<html lang="en-GB">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Command Centre</title>
+<meta name="apple-mobile-web-app-title" content="Command Centre">
+<meta name="robots" content="noindex">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<link rel="icon" type="image/png" href="icon-192.png">
+<link rel="manifest" href="manifest.webmanifest">
+<meta name="theme-color" content="#000000">
+<script>
+  var TARGET = "https://claude.ai/artifact/CuPvpiTJLcU2LUi6wg7Apk";
+  if (/(^|[?&])go\b/.test(location.search)) { location.replace(TARGET); }
+</script>
+<style>
+  body{margin:0;background:#000;color:#e8fff4;font:16px/1.5 -apple-system,system-ui,sans-serif;display:flex;min-height:100vh;align-items:center;justify-content:center;text-align:center;padding:16px;box-sizing:border-box}
+  img{width:120px;height:120px;border-radius:26px}
+  a.btn{display:inline-block;margin-top:16px;padding:12px 20px;border-radius:10px;background:#7afec1;color:#000;text-decoration:none;font-weight:600}
+  p{max-width:340px;margin:12px auto;color:#b8d9c9}
+</style>
+</head>
+<body>
+<main>
+  <img src="apple-touch-icon.png" alt="Enso">
+  <h1 style="font-size:20px;margin:16px 0 4px">TKR Command Centre</h1>
+  <p><b>iPhone:</b> tap Share, then <b>Add to Home Screen</b>.<br><b>Android:</b> tap the menu, then <b>Add to Home screen</b> or <b>Install app</b>.</p>
+  <a class="btn" href="https://claude.ai/artifact/CuPvpiTJLcU2LUi6wg7Apk">Open now</a>
+</main>
+<script>
+  // Saved shortcut opens ?go, which forwards straight to the dashboard.
+  if (!/(^|[?&])go\b/.test(location.search)) { history.replaceState(null, "", "./?go"); }
+</script>
+</body>
+</html>
