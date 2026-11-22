@@ -27,7 +27,11 @@
  * Columns are found by header name, never by letter.
  */
 
+const TKR_SHEET_ID = '1rUCvGd-W31oe18GsKro7BA8khIasVsLNWaolt96Pe8M';   // TKR Recruitment Agent - Data
 const TKR_TZ = 'Europe/London';
+
+// Works whether this script was opened from the sheet (Extensions > Apps Script) or as its own project.
+function tkr_ss() { return SpreadsheetApp.getActive() || SpreadsheetApp.openById(TKR_SHEET_ID); }
 const TKR_QUEUE = 'LinkedIn Queue';
 const TKR_PIPE = 'Pipeline';
 const TKR_LOG = 'Script log';
@@ -40,7 +44,7 @@ function tkrSetup() {
     .forEach(t => ScriptApp.deleteTrigger(t));
   ScriptApp.newTrigger('tkrRunAll').timeBased().everyMinutes(15).create();
   ScriptApp.getProjectTriggers().filter(t => t.getHandlerFunction() === 'tkrOnOpen').forEach(t => ScriptApp.deleteTrigger(t));
-  ScriptApp.newTrigger('tkrOnOpen').forSpreadsheet(SpreadsheetApp.getActive()).onOpen().create();
+  ScriptApp.newTrigger('tkrOnOpen').forSpreadsheet(tkr_ss()).onOpen().create();
   tkr_log('tkrSetup', 'Installed: tkrRunAll every 15 minutes');
   tkrRunAll();
 }
@@ -56,7 +60,7 @@ function tkrRunAll() {
   const lock = LockService.getScriptLock();
   if (!lock.tryLock(30000)) return;
   try {
-    const ss = SpreadsheetApp.getActive();
+    const ss = tkr_ss();
     const notes = [
       tkr_safe('queue dates', () => tkr_stampQueueDates(ss)),
       tkr_safe('accept emails', () => tkr_readAcceptEmails(ss)),
@@ -224,7 +228,7 @@ function tkr_safe(step, fn) {
 }
 
 function tkr_log(step, detail) {
-  const ss = SpreadsheetApp.getActive();
+  const ss = tkr_ss();
   let sh = ss.getSheetByName(TKR_LOG);
   if (!sh) { sh = ss.insertSheet(TKR_LOG); sh.appendRow(['When', 'Step', 'Detail']); sh.setFrozenRows(1); }
   sh.appendRow([Utilities.formatDate(new Date(), TKR_TZ, 'yyyy-MM-dd HH:mm'), step, String(detail).slice(0, 4000)]);
