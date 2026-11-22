@@ -99,7 +99,7 @@ function tkr_readAcceptEmails(ss) {
   if (!threads.length) return '';
   const q = tkr_table(ss, TKR_QUEUE);
   const cN = q.col('name'), cS = q.col('status'), cAcc = q.col('accepted date'), cP = q.col('profile url');
-  let n = 0;
+  const got = [];
   const unsure = [];
   threads.forEach(th => th.getMessages().forEach(m => {
     if (!/accepted your invitation/i.test(m.getSubject())) return;
@@ -114,12 +114,12 @@ function tkr_readAcceptEmails(ss) {
     if (!hits.length && fullName) for (let r = 1; r < q.disp.length; r++) if (open(r) && tkr_nameKey(q.disp[r][cN]) === tkr_nameKey(fullName)) hits.push(r);
     if (hits.length === 1) {
       const r = hits[0];
-      if (q.set(r, cS, 'Accepted')) { q.set(r, cAcc, tkr_ymd(m.getDate())); n++; }
+      if (q.set(r, cS, 'Accepted')) { q.set(r, cAcc, tkr_ymd(m.getDate())); got.push(q.disp[r][cN] + ' (' + (q.disp[r][q.col('company')] || '?') + ', ' + (q.disp[r][q.col('project')] || '?') + ')'); }
     } else if (hits.length > 1) {
       unsure.push((fullName || slug) + ' (' + hits.length + ' rows)');
     }
   }));
-  let out = n ? n + ' acceptances recorded from LinkedIn emails' : '';
+  let out = got.length ? 'Accepted (from LinkedIn emails): ' + got.join(', ') : '';
   if (unsure.length) out += (out ? '; ' : '') + 'not recorded, more than one match: ' + unsure.join(', ');
   return out;
 }
@@ -129,15 +129,16 @@ function tkr_flagWithdrawals(ss) {
   const cS = q.col('status'), cSent = q.col('sent date'), cNotes = q.col('notes');
   const now = tkr_toDate(tkr_today());
   let n = 0;
+  const names = [];
   for (let r = 1; r < q.disp.length; r++) {
     if (tkr_low(q.disp[r][cS]) !== 'sent') continue;
     const sent = tkr_toDate(q.vals[r][cSent]) || tkr_toDate(q.disp[r][cSent]);
     if (!sent || tkr_daysBetween(sent, now) < TKR_WITHDRAW_DAYS) continue;
     const notes = String(q.disp[r][cNotes] || '');
     if (/withdraw\b/i.test(notes) && !/consider withdraw/i.test(notes)) continue;
-    if (q.set(r, cNotes, notes ? notes + '; Withdraw' : 'Withdraw')) n++;
+    if (q.set(r, cNotes, notes ? notes + '; Withdraw' : 'Withdraw')) { n++; names.push(q.disp[r][q.col('name')] + ' (' + q.disp[r][q.col('company')] + ')'); }
   }
-  return n ? n + ' invites flagged to withdraw (35+ days)' : '';
+  return n ? 'Flagged to withdraw (35+ days): ' + names.join(', ') : '';
 }
 
 const TKR_LI_MAP = { 'queued': 'Queued', 'sent': 'Pending', 'accepted': 'Accepted', 'withdrawn': 'Withdrawn', 'already connected': 'Already connected', 'error': 'Not found' };
@@ -148,7 +149,7 @@ function tkr_syncQueueToPipeline(ss) {
   const qProj = q.col('project'), qCo = q.col('company'), qS = q.col('status'), qSent = q.col('sent date'),
         qAcc = q.col('accepted date'), qW = q.col('withdrawn date'), qRow = q.col('pipeline row');
   const pCo = p.col('company'), pLS = p.col('linkedin status'), pLD = p.col('linkedin date');
-  let n = 0;
+  const done = [];
   const mismatch = [];
   for (let r = 1; r < q.disp.length; r++) {
     if (TKR_PROJECT_NAMES.indexOf(tkr_low(q.disp[r][qProj])) < 0) continue;
@@ -161,9 +162,9 @@ function tkr_syncQueueToPipeline(ss) {
     if (cur === tkr_low(target)) continue;
     if ((TKR_LI_RANK[tkr_low(target)] || 0) < (TKR_LI_RANK[cur] || 0)) continue;
     const date = status === 'sent' ? q.disp[r][qSent] : status === 'accepted' ? q.disp[r][qAcc] : status === 'withdrawn' ? q.disp[r][qW] : tkr_today();
-    if (p.set(pr, pLS, target)) { if (date) p.set(pr, pLD, date); n++; }
+    if (p.set(pr, pLS, target)) { if (date) p.set(pr, pLD, date); done.push(p.disp[pr][pCo] + ' > ' + target); }
   }
-  let out = n ? n + ' Pipeline LinkedIn statuses updated' : '';
+  let out = done.length ? 'Pipeline LinkedIn status: ' + done.join(', ') : '';
   if (mismatch.length) out += (out ? '; ' : '') + 'company does not match its Pipeline row: ' + mismatch.slice(0, 10).join(', ');
   return out;
 }
