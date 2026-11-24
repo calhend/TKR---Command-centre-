@@ -1,0 +1,11 @@
+# TKR email open tracker. Deploy this folder as a Netlify site (base directory: tracker).
+[build]
+  publish = "public"
+  functions = "netlify/functions"
+
+# /o/<emailId>.gif  ->  the open-tracking pixel
+[[redirects]]
+  from = "/o/*"
+  to = "/.netlify/functions/open"
+  status = 200
+  force = true

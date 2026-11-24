@@ -68,6 +68,7 @@ function tkrRunAll() {
       tkr_safe('queue to pipeline', () => tkr_syncQueueToPipeline(ss)),
       tkr_safe('into sequence', () => tkr_moveApprovedIntoSequence(ss)),
       tkr_safe('sequence day', () => tkr_advanceSequenceDay(ss)),
+      tkr_safe('email stats', () => (typeof tkrEmailStats === 'function' ? tkrEmailStats(ss) : '')),
     ].filter(Boolean);
     const text = notes.join(' | ');
     const props = PropertiesService.getScriptProperties();
