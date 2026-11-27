@@ -79,6 +79,9 @@
   .list b { font-weight: 700; }
   .seq { font-weight: 700; }
   .muted { color: var(--muted); }
+  .checks li { border-left: 0; padding-left: 0; }
+  .checks label { display: flex; gap: 10px; align-items: center; min-height: 40px; cursor: pointer; }
+  .checks input { width: 22px; height: 22px; accent-color: var(--club); flex: none; }
   .actions { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; }
   .btn { min-height: 44px; padding: 10px 16px; border-radius: 8px; border: 2px solid var(--ink); background: transparent; font-weight: 700; cursor: pointer; }
   .btn:hover { background: var(--ink); color: var(--bg); }
@@ -113,7 +116,7 @@
 
 <main class="wrap">
   <section class="squad" aria-labelledby="pick">
-    <div class="label" id="pick">Tap your name</div>
+    <div class="label" id="pick">Tap a name to show that player's brief</div>
     <div class="groups" id="groups"></div>
   </section>
 
@@ -134,6 +137,16 @@
       <li><strong>React when we lose it</strong><span>Press, recover and make the pitch small.</span></li>
       <li><strong>Work for each other</strong><span>Communicate, encourage and compete.</span></li>
     </ol>
+  </section>
+  <section class="reminders" aria-labelledby="chk">
+    <div class="label" id="chk">Coaches' checklist</div>
+    <ul class="list checks">
+      <li><label><input type="checkbox" id="c1"> Olly organising and covering; back three connected</label></li>
+      <li><label><input type="checkbox" id="c2"> Roo and Theo providing width; midfield staggered</label></li>
+      <li><label><input type="checkbox" id="c3"> Cole supported; players moving after passing</label></li>
+      <li><label><input type="checkbox" id="c4"> Switching play and reacting quickly to turnovers</label></li>
+      <li><label><input type="checkbox" id="c5"> Communication, effort and encouragement</label></li>
+    </ul>
   </section>
   <footer><p>One team. Every player. Come on the Roy!</p></footer>
 </main>
@@ -283,7 +296,7 @@
       panelEl.innerHTML =
         '<div class="intro block"><h2>Our objective</h2>' +
         '<p><strong>Help the player on the ball, create space and stay connected as a team.</strong></p>' +
-        '<p class="muted">The formation is a starting point, not a restriction. Tap your name to see your job, who you can pass to, and what to do when we lose the ball.</p></div>';
+        '<p class="muted">The formation is a starting point, not a restriction. Tap a name to see that player's job, who they can pass to, and what to do when we lose the ball.</p></div>';
       legendEl.textContent = 'Tap a player on the pitch or a name above.';
       return;
     }
@@ -310,7 +323,7 @@
           return '<li><b>' + esc(t.label) + '</b><br><span class="seq">' + esc(t.seq.map(nm).join(' > ')) + '</span><br><span class="muted">' + esc(t.note) + '</span></li>';
         }).join('') + '</ul><p class="muted">Examples to recognise, not compulsory sequences.</p></div>';
     }
-    html += '<div class="block"><div class="label">Send this to ' + esc(p.name) + '</div>' +
+    html += '<div class="block"><div class="label">Link straight to ' + esc(p.name) + '</div>' +
       '<div class="actions"><input class="linkbox" id="linkbox" readonly value="' + esc(linkFor(current)) + '" aria-label="Link for ' + esc(p.name) + '">' +
       '<button type="button" class="btn" id="copy">Copy link</button></div><div class="status" id="status"></div></div>';
     panelEl.innerHTML = html;
